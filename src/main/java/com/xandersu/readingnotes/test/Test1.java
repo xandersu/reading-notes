@@ -12,6 +12,6 @@ public class Test1 {
         Double b = 0D;
         Double v = a / b - a / b;
         System.out.println(v);
-
+        double[] aa = {1D};
     }
 }
