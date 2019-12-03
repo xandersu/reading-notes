@@ -1,4 +1,4 @@
-# 02 第2章 网络层的解析与协议
+# 理论知识 网络层的解析与协议
 
 ##URL
 
@@ -137,4 +137,17 @@ DataOutputStream
 | x        | x      | 同步       | 异步       |
 | 调用状态 | 阻塞   | 同步阻塞   | 异步阻塞   |
 | 调用状态 | 非阻塞 | 同步非阻塞 | 异步非阻塞 |
+
+# 第四章 Socket和ServerSocket 
+
+bind
+
+accept      connect
+
+I/O         I/O
+
+close       close
+
+
+# BIO编程模型
 
