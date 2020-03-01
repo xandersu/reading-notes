@@ -26,7 +26,7 @@ public class ChatServer {
         connectedClients = Maps.newHashMap();
     }
 
-    public void addClient(Socket socket) throws IOException {
+    public synchronized void addClient(Socket socket) throws IOException {
         if (socket != null) {
             int port = socket.getPort();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -35,7 +35,7 @@ public class ChatServer {
         }
     }
 
-    public void removeClient(Socket socket) throws IOException {
+    public synchronized void removeClient(Socket socket) throws IOException {
         if (socket != null) {
             int port = socket.getPort();
             if (connectedClients.containsKey(port)) {
@@ -46,7 +46,7 @@ public class ChatServer {
         }
     }
 
-    public void forwardMessage(Socket socket, String fwdMsg) throws IOException {
+    public synchronized void forwardMessage(Socket socket, String fwdMsg) throws IOException {
         for (Map.Entry<Integer, Writer> entry : connectedClients.entrySet()) {
             Integer key = entry.getKey();
             Writer value = entry.getValue();
@@ -67,6 +67,7 @@ public class ChatServer {
                 //等待连接
                 Socket socket = serverSocket.accept();
                 //创建chatHandler
+                Thread thread = new Thread(new ChatHandler(this, socket));
 
 
             }
@@ -77,7 +78,7 @@ public class ChatServer {
         }
     }
 
-    public void close() {
+    public synchronized void close() {
         if (serverSocket != null) {
             try {
                 serverSocket.close();
@@ -85,6 +86,10 @@ public class ChatServer {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean readyToQuit(String msg) {
+        return QUIT.equals(msg);
     }
 
     public static void main(String[] args) {
