@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="student" class="com.xandersu.readingnotes.imooc.class404_spring_source_code.IOC.xml.Student">
+        <constructor-arg index="0" value="zhangsan"/>
+        <constructor-arg index="1" value="13"/>
+        <!--<property name="name" value="zhangsan"/>
+        <property name="age" value="18"/>
+        <property name="classList">
+            <list>
+                <value>math</value>
+                <value>english</value>
+            </list>
+        </property>-->
+    </bean>
+
+    <bean id="helloService" class="com.xandersu.readingnotes.imooc.class404_spring_source_code.IOC.xml.HelloService">
+        <property name="student" ref="student"/>
+        <property name="animal" ref="dog2"/>
+    </bean>
+
+    <bean id="dog" class="com.xandersu.readingnotes.imooc.class404_spring_source_code.IOC.xml.AnimalFactory"
+          factory-method="getAnimal">
+        <constructor-arg value="dog"/>
+    </bean>
+
+    <bean id="animalFactory2" class="com.xandersu.readingnotes.imooc.class404_spring_source_code.IOC.xml.AnimalFactory2">
+    </bean>
+
+    <bean id="dog2" factory-method="getAnimal"
+          factory-bean="animalFactory2">
+        <constructor-arg value="dog"/>
+    </bean>
+
+    <!--<bean id="cat" class="com.xandersu.readingnotes.imooc.class404_spring_source_code.IOC.xml.AnimalFactory"
+          factory-method="getAnimal">
+        <constructor-arg value="cat"/>
+    </bean>-->
+
+</beans>

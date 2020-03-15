@@ -1,3 +1,3 @@
-org.springframework.context.ApplicationListener=com.xandersu.readingnotes.imooc.class404_spring_source_code.listener.FirstListener\
- ,com.xandersu.readingnotes.imooc.class404_spring_source_code.listener.SecondListener\
-  ,com.xandersu.readingnotes.imooc.class404_spring_source_code.listener.FourthListener
+#org.springframework.context.ApplicationListener=com.xandersu.readingnotes.imooc.class404_spring_source_code.listener.FirstListener\
+# ,com.xandersu.readingnotes.imooc.class404_spring_source_code.listener.SecondListener\
+#  ,com.xandersu.readingnotes.imooc.class404_spring_source_code.listener.FourthListener
