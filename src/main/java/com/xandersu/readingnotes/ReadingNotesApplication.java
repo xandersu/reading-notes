@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Properties;
 
+//@MapperScan("com.xandersu.readingnotes.imooc.class404_spring_source_code.mybatis.mapper")
 @SpringBootApplication
 //@PropertySource({"demo.properties"})
 public class ReadingNotesApplication {

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+    PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!--<classPathEntry location="/Program Files/IBM/SQLLIB/java/db2java.zip" />-->
+
+    <context id="Mybatis3Context" targetRuntime="MyBatis3">
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/test"
+                        userId="root"
+                        password="">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="model" targetProject="/Users/suxun/IdeaProjects/my-github/reading-notes/src/main/java/com/xandersu/readingnotes/imooc/class404_spring_source_code/mybatis">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="mapper" targetProject="/Users/suxun/IdeaProjects/my-github/reading-notes/src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="mapper" targetProject="/Users/suxun/IdeaProjects/my-github/reading-notes/src/main/java/com/xandersu/readingnotes/imooc/class404_spring_source_code/mybatis">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <table tableName="demo" domainObjectName="Demo" enableCountByExample="true"
+               enableDeleteByExample="true" enableUpdateByExample="true" enableSelectByExample="true">
+        </table>
+
+    </context>
+</generatorConfiguration>

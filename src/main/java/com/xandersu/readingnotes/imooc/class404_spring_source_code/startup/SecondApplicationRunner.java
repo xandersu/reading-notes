@@ -15,6 +15,6 @@ import org.springframework.stereotype.Component;
 public class SecondApplicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        System.out.println("\u001b[32m >>> startup SecondApplicationRunner<<<]");
+        System.out.println(">>> startup SecondApplicationRunner<<<");
     }
 }
