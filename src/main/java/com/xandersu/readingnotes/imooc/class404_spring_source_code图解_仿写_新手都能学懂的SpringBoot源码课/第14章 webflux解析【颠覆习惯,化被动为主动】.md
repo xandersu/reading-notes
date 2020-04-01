@@ -149,6 +149,54 @@ application.properties 文件定义mongo相关属性
 
 ## webflux解析
 
+### DispatchHandler准备
+
+1. setApplicationContextAware
+2. initStrategies
+3. 获取容器中HandlerMapping及子接口实现
+4. 获取容器中HandlerAdapter及子接口实现
+5. 获取容器中HandlerResultHandler及子接口实现
+
+
+
+### RouterFunctionMapping实例化
+
+1. afterPropertiesSet
+2. initRouterFunctions
+3. routerFunctions获得系统中所有RouterFunction
+4. 通过RouterFunction::andOther将对象返回
+5. 返回SameComposedRouterFunction对象
+
+### DispatcherHandler#handle
+
+1. 构建基于handlerMappings集合flux对象
+2. 通过concatMap将其转换成handler对象
+3. 取出第一个handler对象，若为空则抛错
+4. 不为空，调用invokeHandler过的response
+5. 调用handleResult对结果进行处理
+
+### HandlerMapping#getHandler
+
+1. 调用子类getHandlerInternal实现
+2. 获得Handler对象
+3. 跨域处理
+4. 返回Mono<Object>对象
+
+### DispatchHandler#invokehandler
+
+1. 遍历handlerAdapters集合
+2. 依次调用集合元素supports方法
+3. 获取具体实现类调用handle方法
+4. 进入具体url对应处理类处理请求
+5. 返回Mono<HandlerResult>对象
+
+### DispacherHandler#handleResult
+
+1. 遍历resultHandlers集合
+2. 依次调用集合元素supports方法
+3. 获取具体实现类调用handleResult方法
+4. 将请求结果信息写入ServerWebExchange对象
+
 
 
 
