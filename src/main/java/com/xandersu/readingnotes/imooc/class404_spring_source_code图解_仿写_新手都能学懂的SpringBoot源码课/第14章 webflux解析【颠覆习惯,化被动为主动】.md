@@ -97,3 +97,62 @@ filter
 - publishOn：将上游信号传给下游，同时改变后续的操作符的执行的所在线程，知道下一个publishOn出现在这个链上
 - subscribeOn：作用于向上的订阅链，无论处于操作链的什么位置，他都会影响到源头的线程执行环境，但不会影响后续的publishOn
 
+
+
+# webflux实践
+
+- 兼容mvc
+- spring webflux写法
+- 连接关系型数据库的案例
+- 连接非关系型数据库的案例
+
+
+
+## webflux连接mongo
+
+use test
+
+db.city.insert({province:'jiangxi',city:'nanchang'})
+
+db.city.insert({province:'zhejiang',city:'hangzhou'})
+
+db.city.insert({province:'hunan',city:'changsha'})
+
+db.city.find()
+
+
+
+## 兼容springMVC写法
+
+- 使用springMVC注解
+- ServletReq/Resp 换成 ServerReq/Resp
+- 返回Mono对象
+
+## Webflux函数式写法
+
+1. 定义DemoHandler
+2. 写ServerRequest消费方法
+3. 定义routerConfig
+4. 书写路由映射
+
+## 连接非关系型数据库的案例
+
+spring-boot-starter-data-mongo-reactive
+
+application.properties 文件定义mongo相关属性
+
+定义MongoDB集合对应对象
+
+继承ReactiveMongoRepository
+
+
+
+## webflux解析
+
+
+
+
+
+
+
+ 
