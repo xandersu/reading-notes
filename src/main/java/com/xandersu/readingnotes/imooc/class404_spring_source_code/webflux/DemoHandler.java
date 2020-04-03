@@ -27,8 +27,8 @@ public class DemoHandler {
     @Autowired
     private DemoRepository demoRepository;
 
-    @Autowired
-    private CityRepository cityRepository;
+//    @Autowired
+//    private CityRepository cityRepository;
 
     public Mono<ServerResponse> hello(ServerRequest request) {
         return ok()
@@ -56,22 +56,22 @@ public class DemoHandler {
                 .body(Mono.just(demoRepository.getById(id)), Demo.class);
     }
 
-    public Mono<ServerResponse> listCity(ServerRequest request) {
-        return ok()
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .body(cityRepository.findAll(), City.class);
-    }
+//    public Mono<ServerResponse> listCity(ServerRequest request) {
+//        return ok()
+//                .contentType(MediaType.APPLICATION_JSON_UTF8)
+//                .body(cityRepository.findAll(), City.class);
+//    }
 
-    public Mono<ServerResponse> saveCity(ServerRequest request) {
-        String province = request.pathVariable("province");
-        String city = request.pathVariable("city");
-        City record = new City();
-        record.setProvince(province);
-        record.setCity(city);
-        Mono<City> mono = Mono.just(record);
-        return ok()
-                .build(cityRepository.insert(mono).then());
-    }
+//    public Mono<ServerResponse> saveCity(ServerRequest request) {
+//        String province = request.pathVariable("province");
+//        String city = request.pathVariable("city");
+//        City record = new City();
+//        record.setProvince(province);
+//        record.setCity(city);
+//        Mono<City> mono = Mono.just(record);
+//        return ok()
+//                .build(cityRepository.insert(mono).then());
+//    }
 
 
 }
