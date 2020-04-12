@@ -1,4 +1,4 @@
-package com.xandersu.readingnotes.imooc.class381JAVA_BIO_NIO_AIO.many_people_chat_BIO;
+package com.xandersu.readingnotes.imooc.class381_JAVA_BIO_NIO_AIO.many_people_chat_BIO;
 
 import java.io.*;
 import java.net.Socket;

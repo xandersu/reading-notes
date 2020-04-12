@@ -1,4 +1,4 @@
-package com.xandersu.readingnotes.imooc.class381JAVA_BIO_NIO_AIO.socket_test;
+package com.xandersu.readingnotes.imooc.class381_JAVA_BIO_NIO_AIO.socket_test;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
