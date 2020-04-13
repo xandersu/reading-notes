@@ -16,6 +16,8 @@ public class TreeNode {
     private TreeNode left;
     private TreeNode right;
 
+    private TreeNode parent;
+
     public TreeNode() {
 
     }
@@ -24,4 +26,17 @@ public class TreeNode {
         this.value = value;
     }
 
+    public void setLeft(TreeNode left) {
+        this.left = left;
+        if (left != null) {
+            this.left.setParent(this);
+        }
+    }
+
+    public void setRight(TreeNode right) {
+        this.right = right;
+        if (right != null) {
+            this.right.setParent(this);
+        }
+    }
 }
