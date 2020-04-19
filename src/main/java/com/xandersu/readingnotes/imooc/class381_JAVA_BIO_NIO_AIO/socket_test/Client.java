@@ -1,10 +1,6 @@
 package com.xandersu.readingnotes.imooc.class381_JAVA_BIO_NIO_AIO.socket_test;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -23,9 +19,10 @@ public class Client {
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-            while (true) {
-                String input = consoleReader.readLine();
+//            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+//            while (true) {
+//                String input = consoleReader.readLine();
+                String input ="=======from client=======";
 
                 bw.write(input);
                 bw.flush();
@@ -36,10 +33,10 @@ public class Client {
                     System.out.println("服务器返回=" + msg);
                 }
                 //用户推出
-                if (input.equals("quit")) {
-                    break;
-                }
-            }
+//                if (input.equals("quit")) {
+//                    break;
+//                }
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
