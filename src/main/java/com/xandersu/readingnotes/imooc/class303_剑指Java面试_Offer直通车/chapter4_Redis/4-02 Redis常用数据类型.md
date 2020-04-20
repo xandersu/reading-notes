@@ -2,8 +2,18 @@
 
 # 供用户使用的数据类型
 
-- string:最基本的数据类型，二进制安全。KV键值对，值最大存储512M。redis string可以包含任何数据，例jpg图片，或者序列化的对象。 set name "redis";set count 1;get count;incr count;
-
+- string:最基本的数据类型，二进制安全。KV键值对，值最大存储512M。redis string可以包含任何数据，例jpg图片，或者序列化的对象。
+ set name "redis"; => OK
+  
+  get name; => "redis";
+  set count 1;=> OK
+  get count;=> "1"
+  incr count;=> (integer)2
+  
+  get count;=> "2"
+  
+  redi是、单个操作是原子性的，一个事务是一个不可分割的最小工作单位，事务中包含的操作，要么都做，要么都不做。可以利用原子操作incr实现计数功能。
+  
   ```
   /**
    * 保存字符串对象的结构
