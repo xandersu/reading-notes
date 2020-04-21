@@ -1,5 +1,11 @@
 # 4-08 Pipeline及主从同步
 
+## 批量生成redis测试数据
+
+1. Linux Bash下执行：for(i=1;i<=2000000;i++); do echo "set k`$`i  v`$`i"" >> /temp/redisTest.txt ; done;生成数据。
+2. 用vim去掉行尾的^M符号：vim /tmp/redis.txt :set fileformat=dos #设置文件的格式，通过这句话去掉每行结尾的^M符号 :wq退出
+3. 通过redis提供的管道 --pipe形式，跑redis，传入指令灌数据：cat /tmp/redisTest.txt | 路径/redis-5.0.0/src/redis-cli -h 主机ip -p 端口号 --pipe
+
 # 使用pipeline的好处
 
 - pipeline和linux的管道类似
@@ -17,7 +23,7 @@
 - master启动一个后台进程，将redis中的数据快照保存到文件中
 - master将保存数据快照期间接收到的写命令缓存起来
 - master完成写文件操作后，将该文件发送给salve
-- 使用新的AOF文件替换掉旧的AOF文件
+- Slave使用新的AOF文件替换掉旧的AOF文件
 - Master将这期间收集的增量写命令发送给salve端
 
 ### 增量同步过程
@@ -35,7 +41,7 @@
 - 提醒： 通过API向管理员或者其他应用程序发送故障通知
 - 自动故障迁移：主从切换
 
-# 流言协议Gossip
+# 流言协议Gossip  反熵
 
 ### 在杂乱无章中寻求一致
 
