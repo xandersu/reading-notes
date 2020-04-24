@@ -65,16 +65,49 @@ getMethod 只能获取public方法，还能获取继承类、实现的接口的�
 
 classloader非常重要，主要工作在Class装载的加载阶段，作用是从系统外部获得Class二进制数据流。是Java核心组件，所有class都是由ClassLoader进行装载的，ClassLoader负责通过将class文件里的二进制数据流装载进系统，然后交给Java虚拟机进行连接，初始化等操作。
 
+
+
+ClassLoader是抽象类、提供重要的接口用于自定义class的加载流程和加载方式
+
+loadClass 给定类名去加载类，返回这个类的实例，找不到抛异常
+
 # ClassLoader的种类
 
 - bootstrapClassLoader：C++编写，加载核心库java.*
+
 - extClassLoader：Java编写，加载扩展库javax.*
-- AppClassLoader：java编写，加载程序所在目录
+
+  - ```
+    extends URLClassLoader 
+    ```
+
+  - 继承URLClassLoader。加载java.ext.dirs文件夹下的类。
+
+  - ```
+    System.getProperty("java.ext.dirs")
+    ```
+
+- AppClassLoader：java编写，加载程序所在目录，classpath类路径下
+
+  - ```
+    extends URLClassLoader 
+    ```
+
+  - ```
+    System.getProperty("java.class.path")
+    ```
+
 - 自定义ClassLoader：java编写，定制化加载
 
 # 自定义ClassLoader的实现
 
 关键函数：findClass,defineClass
+
+- findClass：寻找class文件，读进来二进制流做哪些处理。
+  - 根据名称加载.class字节码，然后调用defineClass解析定义class字节流返回class对象
+- defineClass：定义一个类
+
+
 
 # ClassLoader的双亲委派机制
 

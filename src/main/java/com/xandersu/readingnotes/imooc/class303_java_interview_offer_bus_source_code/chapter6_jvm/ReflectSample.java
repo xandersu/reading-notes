@@ -11,6 +11,10 @@ import java.lang.reflect.Method;
 public class ReflectSample {
 
     public static void main(String[] args) throws Exception {
+
+        System.out.println(System.getProperty("java.ext.dirs"));
+        System.out.println(System.getProperty("java.class.path"));
+
         Class<?> rc = Class.forName("com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter6_jvm.Robot");
 
         Robot robot = (Robot) rc.newInstance();
