@@ -1,0 +1,54 @@
+Classfile /Users/suxun/IdeaProjects/my-github/reading-notes/src/main/java/com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter6_jvm/ByteCodeSample.class
+  Last modified 2020-4-25; size 361 bytes
+  MD5 checksum a17bf0364ce2872ec38a44cd3049d538
+  Compiled from "ByteCodeSample.java"
+public class com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter6_jvm.ByteCodeSample
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #3.#12         // java/lang/Object."<init>":()V
+   #2 = Class              #13            // com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter6_jvm/ByteCodeSample
+   #3 = Class              #14            // java/lang/Object
+   #4 = Utf8               <init>
+   #5 = Utf8               ()V
+   #6 = Utf8               Code
+   #7 = Utf8               LineNumberTable
+   #8 = Utf8               add
+   #9 = Utf8               (II)I
+  #10 = Utf8               SourceFile
+  #11 = Utf8               ByteCodeSample.java
+  #12 = NameAndType        #4:#5          // "<init>":()V
+  #13 = Utf8               com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter6_jvm/ByteCodeSample
+  #14 = Utf8               java/lang/Object
+{
+  public com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter6_jvm.ByteCodeSample();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 8: 0
+
+  public static int add(int, int);
+    descriptor: (II)I
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=3, args_size=2
+         0: iconst_0
+         1: istore_2
+         2: iload_0
+         3: iload_1
+         4: iadd
+         5: istore_2
+         6: iload_2
+         7: ireturn
+      LineNumberTable:
+        line 10: 0
+        line 11: 2
+        line 12: 6
+}
+SourceFile: "ByteCodeSample.java"

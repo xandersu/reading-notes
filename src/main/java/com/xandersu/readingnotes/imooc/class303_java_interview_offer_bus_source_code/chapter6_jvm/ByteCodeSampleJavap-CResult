@@ -1,0 +1,19 @@
+Compiled from "ByteCodeSample.java"
+public class com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter6_jvm.ByteCodeSample {
+  public com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter6_jvm.ByteCodeSample();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: return
+
+  public static int add(int, int);
+    Code:
+       0: iconst_0
+       1: istore_2
+       2: iload_0
+       3: iload_1
+       4: iadd
+       5: istore_2
+       6: iload_2
+       7: ireturn
+}
