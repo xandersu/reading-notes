@@ -13,5 +13,8 @@ public class ClassLoaderCheck {
         System.out.println(clazz.getClassLoader());
         clazz.newInstance();
 
+        System.out.println(cl.getParent());
+        System.out.println(cl.getParent().getParent());
+        System.out.println(cl.getParent().getParent().getParent());
     }
 }

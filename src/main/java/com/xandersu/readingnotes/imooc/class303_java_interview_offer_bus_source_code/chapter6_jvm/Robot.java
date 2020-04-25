@@ -12,6 +12,10 @@ import lombok.ToString;
 @ToString
 public class Robot {
 
+    static {
+        System.out.println("hello robot!!!");
+    }
+
     private String name;
 
     public void sayHi(String hello) {

@@ -111,33 +111,118 @@ loadClass 给定类名去加载类，返回这个类的实例，找不到抛异�
 
 # ClassLoader的双亲委派机制
 
+[![JsZt6U.png](https://s1.ax1x.com/2020/04/25/JsZt6U.png)](https://imgchr.com/i/JsZt6U)
+
 1. 自底向上检查类是否已经被加载
 2. 自顶向下尝试加载类
 
 - 避免多份同样字节码的加载
 
+### loadClass: 
+
+```
+protected Class<?> loadClass(String name, boolean resolve)
+    throws ClassNotFoundException
+{
+		//同步锁，多个线程调用同一个classLoader加载同一个类，
+    synchronized (getClassLoadingLock(name)) {
+    		// 本身的classloader看有没有曾经加载过，加载过直接返回class
+        // First, check if the class has already been loaded
+        Class<?> c = findLoadedClass(name);
+        if (c == null) {
+            long t0 = System.nanoTime();
+            try {
+                //父classLoader不为空
+                if (parent != null) {
+                		//调用父classLoader的loadClass方法
+                		//extclassLoader的parent是bootstrapclassLoader是C++编写的所以为null
+                    c = parent.loadClass(name, false);
+                } else {
+                    // 从bootstrapclassLoader里查找是否加载了类
+                    c = findBootstrapClassOrNull(name);
+                }
+            } catch (ClassNotFoundException e) {
+                // ClassNotFoundException thrown if class not found
+                // from the non-null parent class loader
+            }
+
+            if (c == null) {
+                // If still not found, then invoke findClass in order
+                // to find the class.
+                long t1 = System.nanoTime();
+                //使用自己的自定义的findClass
+                c = findClass(name);
+
+                // this is the defining class loader; record the stats
+                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                sun.misc.PerfCounter.getFindClasses().increment();
+            }
+        }
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+}
+```
+
+自定义的classLoader的parent是AppClassLoader
+
+AppClassLoader的parent是ExtClassLoader
+
+ExtClassLoader的parent是null（bootstrapClassLoader，JVM内C++实现）
+
 # 类加载方式
 
 - 隐式加载：new
-- 显式加载：loadClass,forName等
+  - 程序运行过程中遇到通过new关键字生成对象时，隐式调用类加载器加载对应的类到JVM中
+  - 无需调用class.newInstance()方法来生成对象的实例
+  - new支持调用带参数的构造器生成对象实例
+- 显式加载：loadClass，forName等
+  - 获取到class对象后需要调用class.newInstance()方法来生成对象的实例
+  - class.newInstance方法不支持传入参数，需要通过反射调用构造器的newInstance方法
 
 # loadClass,forName区别
 
-类加载过程：
+### 类装载过程：
 
 1. 加载：
+   
    - 通过ClassLoader加载Class文件字节码，生成Class对象
+     - ClassLoader通过loadClass这个方法将class文件字节码加载到内存中，并将这些静态数据转换成运行时数据区中方法区的类型数据，在运行时，数据区堆中生成一个代表这个类的java.lang.class对象，作为方法区类数据的访问入口。
 2. 链接：
    - 校验：检查加载的class的正确性和安全性
+
+     - 检查class文件格式是否正确
+
    - 准备：为类变量分配存储空间并设置类变量初始值
-   - 解析：JVM将常量池内的符号引用转换为直接引用
+
+     - 类变量（static变量）随类型信息存放在方法区中，生命周期很长，使用不当容易造成内存泄漏
+     - 初始值指的是类变量类型的默认值而不是实际要赋的值
+
+   - 解析（可选）：JVM将常量池内的符号引用转换为直接引用
+
+     - ```
+       resolveClass
+       ```
+
+     - 链接指定的类
 3. 初始化：
-   - 指令类变量赋值和静态代码块
+   
+   - 执行赋值和静态代码块
 
 
 
 - Class.forName得到的Class是已经被初始化完成的
-- Class.loadClass得到的Class是还没有链接的
+
+  - 链接MySql先加载驱动。需要使用Class.forName调用Driver类里的静态代码段
+
+- Class.loadClass得到的Class是还没有链接的，只完成了加载
+
+  - ioc框架加载classpath下的Bean，**延迟加载**，Spring ioc加快初始化速度，大量使用延迟加载，类的初始化动作留在实际使用中
+
+  
 
 # java内存模型
 
