@@ -119,13 +119,105 @@ Runnable是个接口，只有一个抽象的run方法，没有创建多线程的
 
 
 
+## 线程的状态
+
+#### 六个状态
+
+- 新建(new):线程创建后尚未启动的线程状态。
+  - Thread state for a thread which has not yet started.
+  - 新创建的线程对象还没有调用start方法。
+- 运行(Runnable):包含Running和Ready。
+  - 有可能正在执行也有可能正在等待CPU为他分配执行时间。
+  - 调用了start方法就处于runnable状态，处于这个状态又分为两个子状态。
+    - running：
+    - ready：位于可运行线程之中，等待被线程调度选中获取CPU的使用权，在获得CPU时间后就变为running。
+- 无限等待（waiting）：不会被分配CPU执行时间，需要显示被唤醒。
+  - 没有设置Timeout参数的Object.wait()方法。
+  - 没有设置Timeout参数的Thread.join()方法。
+  - LockSupport.park()方法。
+- 限期等待（Timed Waiting）：在一定时间后会由系统自动唤醒。
+  - 不会被分配CPU执行时间，无需等待被其他线程显式唤醒。
+  - Thread.sleep()
+  - 设置Timeout参数的Object.wait()方法。
+  - 设置Timeout参数的Thread.join()方法。
+  - LockSupport.parkNanos()方法。
+  - LockSupport.parkUtil()方法。
+- 阻塞（Blocked）：等待获取排它锁。
+  - 阻塞状态和等待状态的区别：阻塞状态在等待着获取到一个排它锁，这个事件将在一个线程放弃这把锁的时候发生。等待状态是在等待一段时间，或者有唤醒动作的时候发生。
+  - 在程序等待进入同步区域的时候，线程将进入bloaked的状态。比如：当某个线程进入synchronized关键字修饰的方法或者代码块，即获取锁去执行时，其他想进入此方法或者代码块的线程就只能等着，他们的状态是blocked。
+- 结束（Terminated）：已终止线程的状态，线程已结束执行。
+  - run方法完成时或者主线程的main方法完成时，我们认为终止了。线程对象也许还活着，但是不是一个单独执行的线程，线程一旦终止了不能复生。
+  - 在一个终止的线程上调用start方法会抛出java.lang.IllegalThreadStateException异常。
 
 
 
+## Sleep和Wait方法的区别
+
+- sleep是Thread类的方法，wait是Object类的方法
+- sleep方法可以在任何地方使用
+- wait方法只能在synchronized方法或者synchronized代码块中使用
+  - 必须得获取锁才能释放锁。
+
+### 最本质的区别
+
+- Thread.sleep只会让出CPU，不会导致锁行为的改变
+- Object.wait不仅让出CPU还会释放已经占用的同步资源锁
 
 
 
+## notify和notifyAll的区别
 
+### 两个概念
+
+1. 锁池EntryList
+2. 等待池WaitSet
+
+### 锁池EntryList
+
+假设线程A已经拥有了某个对象（不是类）的锁，而其他线程B、C想要调用这个对象的某个synchronized方法（或者块），由于B、C线程在进入对象的synchronized方法（或者块）之前必须先获得该对象锁的拥有权，而恰巧该对象的锁目前目前正被线程A所占有，此时B、C线程就会被阻塞，进入一个地方等待锁的释放，这个地方便是该对象的锁池。
+
+### 等待池WaitSet
+
+假设线程A调用了某个对象的wait()方法，线程A就会释放该对象的锁，同时线程A就进入到了该对象的等待池中，进入到等待池中的线程不会去竞争该对象的锁。
+
+
+
+- notifyAll会让所有处于等待此的线程全部进入锁池去竞争获取锁的机会
+  - 没有获取到锁而已经待在锁池中的线程只能等待其他机会去获取锁再不能在主动回到等待池中。
+- notify只会随机选取一个处于等待池中的线程进入锁池去竞争获取锁的机会。
+
+
+
+## yield
+
+当调用了Thread.yield函数时，会给线程调度器scheduler一个暗示hint，当前线程的愿意让出cpu的使用，但是线程调度器scheduler可能会无视这个暗示hint。
+
+当前线程愿意让出CPU，让其他线程获取cpu使用权，但是取决于线程调度器scheduler，线程调度器scheduler可能会停止当前线程的执行，也可能让当前线程继续执行。
+
+
+
+## 如何中断线程
+
+### 已经抛弃的方法
+
+- 通过调用stop()方法停止线程
+  - stop方法可以由一个线程去停止另外一个线程，这种方法太过暴力，而且是不安全的。比如说线程A调用线程B的stop方法去停止线程B，调用这个方法时候，线程A其实并不知道线程B执行的具体情况，这种突然间的停止会导致线程B的清理工作无法完成，执行stop方法后线程B会马上释放锁，这有可能会引发数据不同步的问题。
+- 通过调用suspend()和resume()方法
+
+### 目前使用的方法
+
+- 调用Interrupt()方法，通知线程该中断了。一种hint。
+  - 1、当对一个线程处于被阻塞状态sleep、wait、join等，那么线程将立即退出被阻塞状态，并抛出一个InterruptedException异常。
+  - 2、如果线程处于正常活动状态，那么会将该线程的中断标志设置为true。被设置中断标志的线程将继续运行，不受影响。
+  - **需要被调用的线程配合中断。**
+  - 在正常运行任务时，经常检查本线程的中断标志位，如果被设置了中断标志就自行停止线程。
+  - 在调用阻塞方法时，正确处理InterruptedException异常，例如catch异常后就结束线程。
+
+
+
+## 线程状态以及状态之间的切换
+
+[![J2zj1O.png](https://s1.ax1x.com/2020/04/26/J2zj1O.png)](https://imgchr.com/i/J2zj1O)
 
 
 

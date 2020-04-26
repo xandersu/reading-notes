@@ -11,7 +11,7 @@ public class ThreadTest {
         System.out.println("current thread is : " + Thread.currentThread().getName());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -20,6 +20,8 @@ public class ThreadTest {
         };
         System.out.println("current main thread is : " + Thread.currentThread().getName());
         thread.run();
+        thread.start();
+        thread.join();
         thread.start();
     }
 }
