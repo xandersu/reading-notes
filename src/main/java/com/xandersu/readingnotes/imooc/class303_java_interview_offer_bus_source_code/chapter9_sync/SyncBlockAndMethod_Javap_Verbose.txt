@@ -1,0 +1,108 @@
+Classfile /Users/suxun/IdeaProjects/my-github/reading-notes/src/main/java/com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter9_sync/SyncBlockAndMethod.class
+  Last modified 2020-4-28; size 697 bytes
+  MD5 checksum af64a04dbc71750ace39383650fbec55
+  Compiled from "SyncBlockAndMethod.java"
+public class com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter9_sync.SyncBlockAndMethod
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #7.#20         // java/lang/Object."<init>":()V
+   #2 = Fieldref           #21.#22        // java/lang/System.out:Ljava/io/PrintStream;
+   #3 = String             #23            // hello 1
+   #4 = Methodref          #24.#25        // java/io/PrintStream.println:(Ljava/lang/String;)V
+   #5 = String             #26            // Hello 2
+   #6 = Class              #27            // com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter9_sync/SyncBlockAndMethod
+   #7 = Class              #28            // java/lang/Object
+   #8 = Utf8               <init>
+   #9 = Utf8               ()V
+  #10 = Utf8               Code
+  #11 = Utf8               LineNumberTable
+  #12 = Utf8               syncTask1
+  #13 = Utf8               StackMapTable
+  #14 = Class              #27            // com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter9_sync/SyncBlockAndMethod
+  #15 = Class              #28            // java/lang/Object
+  #16 = Class              #29            // java/lang/Throwable
+  #17 = Utf8               syncTask2
+  #18 = Utf8               SourceFile
+  #19 = Utf8               SyncBlockAndMethod.java
+  #20 = NameAndType        #8:#9          // "<init>":()V
+  #21 = Class              #30            // java/lang/System
+  #22 = NameAndType        #31:#32        // out:Ljava/io/PrintStream;
+  #23 = Utf8               hello 1
+  #24 = Class              #33            // java/io/PrintStream
+  #25 = NameAndType        #34:#35        // println:(Ljava/lang/String;)V
+  #26 = Utf8               Hello 2
+  #27 = Utf8               com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter9_sync/SyncBlockAndMethod
+  #28 = Utf8               java/lang/Object
+  #29 = Utf8               java/lang/Throwable
+  #30 = Utf8               java/lang/System
+  #31 = Utf8               out
+  #32 = Utf8               Ljava/io/PrintStream;
+  #33 = Utf8               java/io/PrintStream
+  #34 = Utf8               println
+  #35 = Utf8               (Ljava/lang/String;)V
+{
+  public com.xandersu.readingnotes.imooc.class303_java_interview_offer_bus_source_code.chapter9_sync.SyncBlockAndMethod();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 8: 0
+
+  public void syncTask1();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=3, args_size=1
+         0: aload_0
+         1: dup
+         2: astore_1
+         3: monitorenter
+         4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         7: ldc           #3                  // String hello 1
+         9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        12: aload_1
+        13: monitorexit
+        14: goto          22
+        17: astore_2
+        18: aload_1
+        19: monitorexit
+        20: aload_2
+        21: athrow
+        22: return
+      Exception table:
+         from    to  target type
+             4    14    17   any
+            17    20    17   any
+      LineNumberTable:
+        line 11: 0
+        line 12: 4
+        line 13: 12
+        line 14: 22
+      StackMapTable: number_of_entries = 2
+        frame_type = 255 /* full_frame */
+          offset_delta = 17
+          locals = [ class com/xandersu/readingnotes/imooc/class303_java_interview_offer_bus_source_code/chapter9_sync/SyncBlockAndMethod, class java/lang/Object ]
+          stack = [ class java/lang/Throwable ]
+        frame_type = 250 /* chop */
+          offset_delta = 4
+
+  public synchronized void syncTask2();
+    descriptor: ()V
+    flags: ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: ldc           #5                  // String Hello 2
+         5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         8: return
+      LineNumberTable:
+        line 17: 0
+        line 18: 8
+}
+SourceFile: "SyncBlockAndMethod.java"
