@@ -462,31 +462,152 @@ instance = memory;//3、设置instance指向刚分配的内存地址
 
 
 
+# 线程池
+
+### 利用Executors创建不同的线程池满足不同场景的需求
+
+1. newFixedThreadPool(int nThreads) 
+
+   指定工作线程数量的线程池
+
+2. newCachedThreadPool()处理大量短时间工作任务的线程池
+
+   1. 试图缓存线程并重用，当无缓存线程可用时，就会创建新的工作线程；
+   2. 如果线程闲置的时间超过阈值，则会被终止并移出缓存
+   3. 系统长时间闲置不用时，不会消耗什么资源
+
+3. new SingleThreadExecutor()  
+
+   创建唯一的工作线程来执行任务，如果线程异常结束，会有另一个线程取代他
+
+4. new SingleThreadScheduledExecutor()与 newScheduledThreadPool(int corePoolSize)  
+
+   定时或者周期性的工作调度，两者的区别在于单一工作线程还是多个线程
+
+5. new WorkStealingPool()
+
+   内部会构建ForkJoinPool，利用working-stealing算法，并行地处理任务，不保证处理顺序
+
+
+
+### Fork/Join框架
+
+JDK7开始提供
+
+- 把大任务分割成若干个小任务并行执行，最终汇总每个小任务结果后得到大任务结果的框架
+  - Executors接口的具体实现，目的是更好的利用多处理器
+  - 用于可以被递归的拆解成子任务的工作类型设计
+  - 目的是运用所有可用的运算能力来提高性能
+  - map reduce
+  - 使用工作窃取，work stealing算法（某个线程从其他队列里窃取任务来执行）。
+  - 完成工作任务的从其他正在执行的线程中窃取工作任务。
+  - 使用双端队列，被窃取的线程从双端队列头部拿取任务，窃取线程从双端队列尾部拿取任务。
+
+
+
+### 为什么使用线程池
+
+- 复用已创建的线程，降低创建和销毁线程的资源消耗
+- 提高线程的可管理性，线程无限制的创建系统的稳定性，线程进行统一分配方便监控和调优
+
+
+
+### Executor的框架
+
+
+
+![JbssIO.png](https://s1.ax1x.com/2020/04/30/JbssIO.png)
+
+Executor框架是根据一组执行策略调用、调度、执行和控制的异步任务框架。
+
+目的是提供一种将任务提交、任务如何运行分离开来的机制。
+
+JUC的三个Executor接口
+
+- Executor：运行新任务的简单接口，将任务提交和任务执行细节解耦
+
+  - ```
+    void execute(Runnable command);
+    ```
+
+  - 根据不同的实现。可能是创建一个线程并立即启动，也可能是使用已有的工作线程来运行传入的任务；也可能是使用已有的工作线程来运行传入的任务；也可能是根据线程池的容量或者阻塞队列的容量来决定是否要将传入的线程放入阻塞队列中，或者拒绝接受传入的任务。
+
+- ExecutorService：扩展了Executor，具备管理执行器和任务生命周期的方法，提交任务机制更完善。
+
+  - submit( callable )返回Future而不是void
+  - shutdown()、isShutdown()管理方法
+
+- ScheduledExecutorService：支持Future和定期执行任务。
+
+  - 扩展了ExecutorService
+
+
+
+## ThreadPoolExecutor
+
+
+
+![JbH11I.png](https://s1.ax1x.com/2020/04/30/JbH11I.png)
 
 
 
 
 
+ java.util.concurrent.ThreadPoolExecutor.Worker
+
+
+
+### ThreadPoolExecutor构造函数
+
+- int corePoolSize：核心线程数量
+- int maximumPoolSize：线程不够用时能够创建的最大线程数
+- long keepAliveTime：线程空闲生存时间，当线程数量大于corePoolSize，如果没有新的任务提交，核心线程外的线程不会立即销毁，直到等待时间超过keepAliveTime才会被销毁
+- TimeUnit unit
+- BlockingQueue<Runnable> workQueue：任务等待队列
+- ThreadFactory threadFactory：创建新的线程。
+  - 默认Executors.defaultThreadFactory()，新创建的线程有同样的优先级，非守护线程，并且设置线程的名称
+- RejectedExecutionHandler handler：线程池的饱和策略。
+  - 如果阻塞队列满了并且没有空闲的线程，这是如果继续提交任务，这是就需要一种策略来处理任务。4种策略。
+  - AbortPolicy：直接抛出异常，这是默认策略。
+  - CallerRunsPolicy：用调用者所在的线程来执行任务。
+  - DiscardOldestPolicy：丢弃队列中最靠前的任务，并执行当前任务。
+  - DiscardPolicy：直接丢弃任务。
+  - 可以实现java.util.concurrent.RejectedExecutionHandler接口自定义handler
+
+
+
+### 新任务提交execute执行后的判断
+
+1. 如果运行的线程少于corePoolSize,则创建新线程来处理任务，即使线程池中的其他线程是空闲的
+2. 如果线程池中的线程数量大于等于corePoolSize且小于maximumPoolSize，则只有当workQueue满时才创建新的线程去处理任务
+3. 如果设置的corePoolSize和maximumPoolSize相同，则创建的线程池的大小是固定的，这时如果有新任务提交，若workQueue未满，则将请求放入workQueue中，等待有空闲的线程去从workQueue中取任务并处理
+4. 如果运行的线程数量大于等于maximumPoolSize，这时如果workQueue已经满了，则通过handler所指定的策略来处理任务
+
+
+
+### 线程池的状态
+
+- RUNNING：能接受新提交的任务，并且也能处理阻塞队列中的任务
+- SHUTDOWN：不能再接受新提交的任务，但可以处理存量任务
+  - 在RUNNING状态下调用shutdown()方法会进入这种状态
+- STOP：不再接受新提交的任务，也不处理存量任务
+  - 在RUNNING或者SHUTDOWN状态下调用shutdownNow()方法会进入这种状态
+- TIDYING：所有任务都已经终止。
+- TERMINATED：terminated()方法执行完后进入该状态。
+  - TIDYING状态后调用terminated()方法执
+
+
+
+[![JbjM4S.png](https://s1.ax1x.com/2020/04/30/JbjM4S.png)](https://imgchr.com/i/JbjM4S)
 
 
 
 
 
+### 线程池的大小如何选定
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- CPU密集型：线程数=按照核数或者和数+1设定
+- I/O密集型：线程数=CPU核数*（1+平均等待时间/平均工作时间）
 
 
 
