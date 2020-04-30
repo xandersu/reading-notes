@@ -464,6 +464,8 @@ instance = memory;//3、设置instance指向刚分配的内存地址
 
 # 线程池
 
+为解决资源分配这个问题，线程池采用了“池化”（Pooling）思想。池化，顾名思义，是为了最大化收益并最小化风险，而将资源统一在一起管理的一种思想。
+
 ### 利用Executors创建不同的线程池满足不同场景的需求
 
 1. newFixedThreadPool(int nThreads) 
@@ -507,8 +509,10 @@ JDK7开始提供
 
 ### 为什么使用线程池
 
-- 复用已创建的线程，降低创建和销毁线程的资源消耗
-- 提高线程的可管理性，线程无限制的创建系统的稳定性，线程进行统一分配方便监控和调优
+- **降低资源消耗**：通过池化技术重复利用已创建的线程，降低线程创建和销毁造成的损耗。
+- **提高响应速度**：任务到达时，无需等待线程创建即可立即执行。
+- **提高线程的可管理性**：线程是稀缺资源，如果无限制创建，不仅会消耗系统资源，还会因为线程的不合理分布导致资源调度失衡，降低系统的稳定性。使用线程池可以进行统一的分配、调优和监控。
+- **提供更多更强大的功能**：线程池具备可拓展性，允许开发人员向其中增加更多的功能。比如延时定时线程池ScheduledThreadPoolExecutor，就允许任务延期执行或定期执行。
 
 
 
@@ -530,12 +534,16 @@ JUC的三个Executor接口
     void execute(Runnable command);
     ```
 
+  - 将任务提交和任务执行进行解耦。用户无需关注如何创建线程，如何调度线程来执行任务，用户只需提供Runnable对象，将任务的运行逻辑提交到执行器(Executor)中，由Executor框架完成线程的调配和任务的执行部分。
+
   - 根据不同的实现。可能是创建一个线程并立即启动，也可能是使用已有的工作线程来运行传入的任务；也可能是使用已有的工作线程来运行传入的任务；也可能是根据线程池的容量或者阻塞队列的容量来决定是否要将传入的线程放入阻塞队列中，或者拒绝接受传入的任务。
 
 - ExecutorService：扩展了Executor，具备管理执行器和任务生命周期的方法，提交任务机制更完善。
 
   - submit( callable )返回Future而不是void
   - shutdown()、isShutdown()管理方法
+  - （1）扩充执行任务的能力，补充可以为一个或一批异步任务生成Future的方法；
+  - （2）提供了管控线程池的方法，比如停止线程池的运行。
 
 - ScheduledExecutorService：支持Future和定期执行任务。
 
@@ -553,9 +561,24 @@ JUC的三个Executor接口
 
 
 
- java.util.concurrent.ThreadPoolExecutor.Worker
+###  java.util.concurrent.ThreadPoolExecutor.Worker
 
+```
+private final class Worker
+    extends AbstractQueuedSynchronizer
+    implements Runnable{
+				/** Thread this worker is running in.  Null if factory fails. */
+        final Thread thread;  //Worker持有的线程
+        /** Initial task to run.  Possibly null. */
+        Runnable firstTask;    //初始化的任务，可以为null
+}
+```
 
+Worker这个工作线程，实现了Runnable接口，并持有一个线程thread，一个初始化的任务firstTask。
+
+- thread是在调用构造方法时通过ThreadFactory来创建的线程，可以用来执行任务；
+
+- firstTask用它来保存传入的第一个任务，这个任务可以有也可以为null。如果这个值是非空的，那么线程就会在启动初期立即执行这个任务，也就对应核心线程创建时的情况；如果这个值是null，那么就需要创建一个线程去执行任务列表（workQueue）中的任务，也就是非核心线程的创建。
 
 ### ThreadPoolExecutor构造函数
 
@@ -567,9 +590,9 @@ JUC的三个Executor接口
 - ThreadFactory threadFactory：创建新的线程。
   - 默认Executors.defaultThreadFactory()，新创建的线程有同样的优先级，非守护线程，并且设置线程的名称
 - RejectedExecutionHandler handler：线程池的饱和策略。
-  - 如果阻塞队列满了并且没有空闲的线程，这是如果继续提交任务，这是就需要一种策略来处理任务。4种策略。
-  - AbortPolicy：直接抛出异常，这是默认策略。
-  - CallerRunsPolicy：用调用者所在的线程来执行任务。
+  - 如果阻塞队列满了并且没有空闲的线程，并且线程池中的线程数目达到maximumPoolSize时，这是如果继续提交任务，这是就需要一种策略来处理任务。4种策略。
+  - AbortPolicy：直接抛出异常，这是默认策略。在任务不能再提交的时候，抛出异常，及时反馈程序状态。如果是比较关键的业务，推荐使用此拒绝策略，在系统不能承担更大的并发量的时候，能够及时的通过异常发现。
+  - CallerRunsPolicy：用调用者（提交任务的线程）所在的线程来执行任务。这种情况是需要让所有任务都执行完毕，适合大量计算的任务去执行，多线程仅仅是增大吞吐量的手段，最终手段是让每个任务都执行完毕。
   - DiscardOldestPolicy：丢弃队列中最靠前的任务，并执行当前任务。
   - DiscardPolicy：直接丢弃任务。
   - 可以实现java.util.concurrent.RejectedExecutionHandler接口自定义handler
@@ -578,10 +601,15 @@ JUC的三个Executor接口
 
 ### 新任务提交execute执行后的判断
 
-1. 如果运行的线程少于corePoolSize,则创建新线程来处理任务，即使线程池中的其他线程是空闲的
-2. 如果线程池中的线程数量大于等于corePoolSize且小于maximumPoolSize，则只有当workQueue满时才创建新的线程去处理任务
-3. 如果设置的corePoolSize和maximumPoolSize相同，则创建的线程池的大小是固定的，这时如果有新任务提交，若workQueue未满，则将请求放入workQueue中，等待有空闲的线程去从workQueue中取任务并处理
-4. 如果运行的线程数量大于等于maximumPoolSize，这时如果workQueue已经满了，则通过handler所指定的策略来处理任务
+1. 首先检测线程池运行状态，如果不是RUNNING，则直接拒绝，线程池要保证在RUNNING的状态下执行任务。
+2. 如果workerCount < corePoolSize，则创建并启动一个线程来执行新提交的任务，即使线程池中的其他线程是空闲的
+3. 如果线程池中的线程数量大于等于corePoolSize且小于maximumPoolSize，则只有当workQueue满时才创建新的线程去处理任务
+4. 如果设置的corePoolSize和maximumPoolSize相同，则创建的线程池的大小是固定的，这时如果有新任务提交，若workQueue未满，则将请求放入workQueue中，等待有空闲的线程去从workQueue中取任务并处理
+5. 如果运行的线程数量大于等于maximumPoolSize，这时如果workQueue已经满了，则通过handler所指定的策略来处理任务
+
+
+
+[![JqSKqs.png](https://s1.ax1x.com/2020/04/30/JqSKqs.png)](https://imgchr.com/i/JqSKqs)
 
 
 
@@ -590,9 +618,9 @@ JUC的三个Executor接口
 - RUNNING：能接受新提交的任务，并且也能处理阻塞队列中的任务
 - SHUTDOWN：不能再接受新提交的任务，但可以处理存量任务
   - 在RUNNING状态下调用shutdown()方法会进入这种状态
-- STOP：不再接受新提交的任务，也不处理存量任务
+- STOP：不再接受新提交的任务，也不处理存量任务，会中断正在处理任务的线程
   - 在RUNNING或者SHUTDOWN状态下调用shutdownNow()方法会进入这种状态
-- TIDYING：所有任务都已经终止。
+- TIDYING：所有任务都已经终止，workerCount（有效线程数）为0
 - TERMINATED：terminated()方法执行完后进入该状态。
   - TIDYING状态后调用terminated()方法执
 
@@ -602,6 +630,29 @@ JUC的三个Executor接口
 
 
 
+线程池内部使用一个变量维护两个值：运行状态(runState)和线程数量 (workerCount)。在具体实现中，线程池将运行状态(runState)、线程数量 (workerCount)两个关键参数的维护放在了一起
+
+```Java
+private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
+```
+
+它同时包含两部分的信息：线程池的运行状态 (runState) 和线程池内有效线程的数量 (workerCount)，高3位保存runState，低29位保存workerCount，两个变量之间互不干扰。
+
+```
+private static final int COUNT_BITS = Integer.SIZE - 3;
+private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
+// runState is stored in the high-order bits
+private static final int RUNNING    = -1 << COUNT_BITS;
+private static final int SHUTDOWN   =  0 << COUNT_BITS;
+private static final int STOP       =  1 << COUNT_BITS;
+private static final int TIDYING    =  2 << COUNT_BITS;
+private static final int TERMINATED =  3 << COUNT_BITS;
+// Packing and unpacking ctl
+private static int runStateOf(int c)     { return c & ~CAPACITY; }  //计算当前运行状态
+private static int workerCountOf(int c)  { return c & CAPACITY; }  //计算当前线程数量
+private static int ctlOf(int rs, int wc) { return rs | wc; }  //通过状态和线程数生成ctl
+```
+
 
 
 ### 线程池的大小如何选定
@@ -610,4 +661,26 @@ JUC的三个Executor接口
 - I/O密集型：线程数=CPU核数*（1+平均等待时间/平均工作时间）
 
 
+
+《Java并发编程实战》
+
+
+
+### 任务缓冲
+
+任务缓冲模块是线程池能够管理任务的核心部分。
+
+关键的思想就是将任务和线程两者解耦。
+
+线程池中是以生产者消费者模式，通过一个阻塞队列来实现的。阻塞队列缓存任务，工作线程从阻塞队列中获取任务。
+
+| 名称                  | 描述                                                         |
+| --------------------- | ------------------------------------------------------------ |
+| ArrayBlockingQueue    | 一个用数组实现的有界阻塞队列，此队列按照先进先出（FIFO）的原则对元素进行排序，支持公平锁和非公平锁。 |
+| LinkedBlockingQueue   | 一个由链表结构组成的有界阻塞队列，此队列按照先进先出（FIFO）的原则对元素进行排序。此队列默认长度为Integer.MAX_VALUE，所以默认创建的该队列有容量危险。 |
+| PriorityBlockingQueue | 一个支持线程优先级排序的无界队列，默认自然排序，也可以自定义实现compareTo()方法来指定元素排序规则，不能保证同优先级元素的顺序。 |
+| DelayQueue            | 一个实现PriorityBlockingQueue实现延迟获取的无界队列，在创建元素时，可以指定多久才能从队列中获取当前元素。只有延时器满后才能从队列中获取元素。 |
+| SynchronizedQueue     | 一个不存储元素的阻塞队列，每一个put操作必须等待take操作，否则不能添加元素。支持公平锁和非公平锁。SynchronizedQueue的一个使用场景是在线程池里。newCachedThreadPool()就使用了SynchronizedQueue，这个线程根据需要（新任务到来时）创建新线程，如果有空闲线程则会重复使用，线程空闲了60秒后会被回收。 |
+| LinkedTransferQueue   | 一个由链表结构组成的无界阻塞队列，相当于其他队列，LinkedTransferQueue多了transfer和tryTransfer方法。 |
+| LinkedBlockingQueue   | 一个由链表结构组成的双向阻塞队列。队列头部和尾部都可以添加和移除元素，多线程并发时，可以将锁的竞争最多降到一半。 |
 
