@@ -4,14 +4,13 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.stereotype.Component;
 
 /**
  * @author: suxun
  * @date: 2020/3/23 21:30
  * @description:
  */
-@Component
+//@Component
 public class MyAwareProcessor implements BeanPostProcessor {
 
     private final ConfigurableApplicationContext configurableApplicationContext;

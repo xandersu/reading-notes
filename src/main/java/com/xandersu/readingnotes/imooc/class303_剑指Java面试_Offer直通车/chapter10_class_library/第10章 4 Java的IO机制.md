@@ -1,7 +1,5 @@
 # 第10章 4 Java的IO机制
 
-
-
 ## BIO、NIO、AIO
 
 ### Block-IO:InputStream和OutputStream，Reader和Writer
